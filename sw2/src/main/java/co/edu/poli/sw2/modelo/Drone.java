@@ -1,51 +1,38 @@
 package co.edu.poli.sw2.modelo;
 
-import java.util.ArrayList;
-import java.util.List;
+public abstract class Drone {
 
-public class Drone {
-
-    private int id;
-    private int serial;
-    private String modelo;
-    private String fabricante;
-    private int peso;
-
-    private Piloto piloto;
-    private List<Sensor> sensores;
-    private List<Mision> misiones;
+    protected String id;
+    protected String serial;
+    protected String modelo;
+    protected String fabricante;
+    protected double peso;
 
     public Drone() {
-        sensores = new ArrayList<>();
-        misiones = new ArrayList<>();
     }
 
-    public Drone(int id, int serial, String modelo,
-                 String fabricante, int peso) {
-
+    public Drone(String id, String serial, String modelo,
+                 String fabricante, double peso) {
         this.id = id;
         this.serial = serial;
         this.modelo = modelo;
         this.fabricante = fabricante;
         this.peso = peso;
-
-        this.sensores = new ArrayList<>();
-        this.misiones = new ArrayList<>();
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public int getSerial() {
+    public String getSerial() {
         return serial;
     }
 
-    public void setSerial(int serial) {
+    public void setSerial(String serial) {
         this.serial = serial;
     }
 
@@ -65,46 +52,30 @@ public class Drone {
         this.fabricante = fabricante;
     }
 
-    public int getPeso() {
+    public double getPeso() {
         return peso;
     }
 
-    public void setPeso(int peso) {
+    public void setPeso(double peso) {
         this.peso = peso;
     }
 
-    public Piloto getPiloto() {
-        return piloto;
-    }
-
-    public void setPiloto(Piloto piloto) {
-        this.piloto = piloto;
-    }
-
-    public List<Sensor> getSensores() {
-        return sensores;
-    }
-
-    public void setSensores(List<Sensor> sensores) {
-        this.sensores = sensores;
-    }
-
-    public List<Mision> getMisiones() {
-        return misiones;
-    }
-
-    public void setMisiones(List<Mision> misiones) {
-        this.misiones = misiones;
-    }
+    /**
+     * Cada subclase concreta indica su tipo ("AGRICULTURA" o "VIGILANCIA").
+     * Esto se usa en el DAO/Controller para decidir a qué tabla
+     * adicional escribir o leer, sin necesidad de encadenar instanceof.
+     */
+    public abstract String getTipo();
 
     @Override
     public String toString() {
         return "Drone{" +
-                "id=" + id +
+                "id='" + id + '\'' +
                 ", serial=" + serial +
                 ", modelo='" + modelo + '\'' +
                 ", fabricante='" + fabricante + '\'' +
                 ", peso=" + peso +
+                ", tipo=" + getTipo() +
                 '}';
     }
 }

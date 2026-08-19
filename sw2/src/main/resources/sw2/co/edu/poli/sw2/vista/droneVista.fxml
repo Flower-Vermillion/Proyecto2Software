@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -8,8 +10,10 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="600.0"
-            prefWidth="793.0"
+<AnchorPane prefHeight="750.0"
+            prefWidth="800.0"
+            styleClass="root-pane"
+            stylesheets="@drone-view.css"
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="co.edu.poli.sw2.controller.DroneController">
@@ -17,162 +21,238 @@
     <children>
 
         <!-- TÍTULO -->
-        <Label layoutX="310.0"
-               layoutY="34.0"
+        <Label layoutX="270.0"
+               layoutY="20.0"
+               styleClass="app-title"
                text="Gestión de Drones">
 
             <font>
-                <Font size="24.0"/>
+                <Font size="26.0"/>
             </font>
 
         </Label>
 
 
-        <!-- ID -->
-        <Label layoutX="40.0"
-               layoutY="89.0"
-               text="ID:">
+        <!-- ===== TARJETA DEL FORMULARIO ===== -->
+        <AnchorPane layoutX="15.0"
+                    layoutY="70.0"
+                    prefHeight="290.0"
+                    prefWidth="770.0"
+                    styleClass="card-panel">
 
-            <font>
-                <Font size="18.0"/>
-            </font>
+            <children>
 
-        </Label>
+                <!-- ID -->
+                <Label layoutX="20.0"
+                       layoutY="22.0"
+                       styleClass="form-label"
+                       text="ID:">
+                    <font>
+                        <Font size="14.0"/>
+                    </font>
+                </Label>
 
-        <TextField fx:id="txtId"
-                   layoutX="140.0"
-                   layoutY="89.0"
-                   prefHeight="27.0"
-                   prefWidth="564.0"/>
-
-
-        <!-- SERIAL -->
-        <Label layoutX="40.0"
-               layoutY="142.0"
-               text="Serial:">
-
-            <font>
-                <Font size="18.0"/>
-            </font>
-
-        </Label>
-
-        <TextField fx:id="txtSerial"
-                   layoutX="140.0"
-                   layoutY="142.0"
-                   prefHeight="27.0"
-                   prefWidth="564.0"/>
+                <TextField fx:id="txtId"
+                           layoutX="120.0"
+                           layoutY="18.0"
+                           prefHeight="30.0"
+                           prefWidth="620.0"
+                           styleClass="text-field-custom"/>
 
 
-        <!-- MODELO -->
-        <Label layoutX="40.0"
-               layoutY="201.0"
-               text="Modelo:">
+                <!-- SERIAL -->
+                <Label layoutX="20.0"
+                       layoutY="67.0"
+                       styleClass="form-label"
+                       text="Serial:">
+                    <font>
+                        <Font size="14.0"/>
+                    </font>
+                </Label>
 
-            <font>
-                <Font size="18.0"/>
-            </font>
-
-        </Label>
-
-        <TextField fx:id="txtModelo"
-                   layoutX="140.0"
-                   layoutY="201.0"
-                   prefHeight="27.0"
-                   prefWidth="564.0"/>
-
-
-        <!-- FABRICANTE -->
-        <Label layoutX="37.0"
-               layoutY="260.0"
-               text="Fabricante:">
-
-            <font>
-                <Font size="18.0"/>
-            </font>
-
-        </Label>
-
-        <TextField fx:id="txtFabricante"
-                   layoutX="140.0"
-                   layoutY="260.0"
-                   prefHeight="28.0"
-                   prefWidth="564.0"/>
+                <TextField fx:id="txtSerial"
+                           layoutX="120.0"
+                           layoutY="63.0"
+                           prefHeight="30.0"
+                           prefWidth="620.0"
+                           styleClass="text-field-custom"/>
 
 
-        <!-- PESO -->
-        <Label layoutX="39.0"
-               layoutY="319.0"
-               text="Peso:">
+                <!-- MODELO -->
+                <Label layoutX="20.0"
+                       layoutY="112.0"
+                       styleClass="form-label"
+                       text="Modelo:">
+                    <font>
+                        <Font size="14.0"/>
+                    </font>
+                </Label>
 
-            <font>
-                <Font size="18.0"/>
-            </font>
-
-        </Label>
-
-        <TextField fx:id="txtPeso"
-                   layoutX="138.0"
-                   layoutY="319.0"
-                   prefHeight="28.0"
-                   prefWidth="564.0"/>
+                <TextField fx:id="txtModelo"
+                           layoutX="120.0"
+                           layoutY="108.0"
+                           prefHeight="30.0"
+                           prefWidth="620.0"
+                           styleClass="text-field-custom"/>
 
 
-        <!-- BOTONES -->
+                <!-- FABRICANTE -->
+                <Label layoutX="20.0"
+                       layoutY="157.0"
+                       styleClass="form-label"
+                       text="Fabricante:">
+                    <font>
+                        <Font size="14.0"/>
+                    </font>
+                </Label>
 
-        <Button layoutX="36.0"
-                layoutY="364.0"
+                <TextField fx:id="txtFabricante"
+                           layoutX="120.0"
+                           layoutY="153.0"
+                           prefHeight="30.0"
+                           prefWidth="620.0"
+                           styleClass="text-field-custom"/>
+
+
+                <!-- PESO -->
+                <Label layoutX="20.0"
+                       layoutY="202.0"
+                       styleClass="form-label"
+                       text="Peso (kg):">
+                    <font>
+                        <Font size="14.0"/>
+                    </font>
+                </Label>
+
+                <TextField fx:id="txtPeso"
+                           layoutX="120.0"
+                           layoutY="198.0"
+                           prefHeight="30.0"
+                           prefWidth="200.0"
+                           styleClass="text-field-custom"/>
+
+
+                <!-- TIPO -->
+                <Label layoutX="360.0"
+                       layoutY="202.0"
+                       styleClass="form-label"
+                       text="Tipo:">
+                    <font>
+                        <Font size="14.0"/>
+                    </font>
+                </Label>
+
+                <ComboBox fx:id="cbTipo"
+                          layoutX="420.0"
+                          layoutY="198.0"
+                          prefHeight="30.0"
+                          prefWidth="320.0"
+                          promptText="Seleccione el tipo de drone"
+                          styleClass="combo-custom"/>
+
+
+                <!-- SEPARADOR VISUAL: DATOS ESPECÍFICOS -->
+                <Label layoutX="20.0"
+                       layoutY="240.0"
+                       styleClass="section-title"
+                       text="Datos específicos según el tipo"/>
+
+                <!-- CAPACIDAD TANQUE (AGRICULTURA) -->
+                <Label layoutX="20.0"
+                       layoutY="264.0"
+                       styleClass="form-label"
+                       text="Capacidad tanque (Agricultura):">
+                    <font>
+                        <Font size="13.0"/>
+                    </font>
+                </Label>
+
+                <TextField fx:id="txtCapacidadTanque"
+                           layoutX="270.0"
+                           layoutY="260.0"
+                           prefHeight="28.0"
+                           prefWidth="140.0"
+                           styleClass="text-field-custom"/>
+
+                <!-- DETECCIÓN TÉRMICA (VIGILANCIA) -->
+                <CheckBox fx:id="chkDeteccionTermica"
+                          layoutX="450.0"
+                          layoutY="264.0"
+                          styleClass="check-custom"
+                          text="Detección térmica (Vigilancia)"/>
+
+            </children>
+
+        </AnchorPane>
+
+
+        <!-- ===== BOTONES ===== -->
+
+        <Button layoutX="15.0"
+                layoutY="378.0"
                 onAction="#guardarDrone"
-                text="Guardar"
-                prefWidth="100.0"/>
+                prefHeight="34.0"
+                prefWidth="130.0"
+                styleClass="button-save"
+                text="Guardar"/>
 
-        <Button layoutX="347.0"
-                layoutY="364.0"
+        <Button layoutX="335.0"
+                layoutY="378.0"
                 onAction="#modificarDrone"
-                text="Modificar"
-                prefWidth="100.0"/>
+                prefHeight="34.0"
+                prefWidth="130.0"
+                styleClass="button-modify"
+                text="Modificar"/>
 
-        <Button layoutX="657.0"
-                layoutY="364.0"
+        <Button layoutX="655.0"
+                layoutY="378.0"
                 onAction="#eliminarDrone"
-                text="Eliminar"
-                prefWidth="100.0"/>
+                prefHeight="34.0"
+                prefWidth="130.0"
+                styleClass="button-delete"
+                text="Eliminar"/>
 
 
-        <!-- TABLA -->
+        <!-- ===== TABLA ===== -->
 
         <TableView fx:id="tblDrones"
-                   layoutX="3.0"
-                   layoutY="410.0"
-                   prefHeight="180.0"
-                   prefWidth="785.0">
+                   layoutX="15.0"
+                   layoutY="430.0"
+                   prefHeight="300.0"
+                   prefWidth="770.0"
+                   styleClass="table-custom">
 
             <columns>
 
                 <!-- ID -->
                 <TableColumn fx:id="colId"
-                             text="ID"
-                             prefWidth="80.0"/>
+                             prefWidth="90.0"
+                             text="ID"/>
 
                 <!-- SERIAL -->
                 <TableColumn fx:id="colSerial"
-                             text="Serial"
-                             prefWidth="150.0"/>
+                             prefWidth="130.0"
+                             text="Serial"/>
 
                 <!-- MODELO -->
                 <TableColumn fx:id="colModelo"
-                             text="Modelo"
-                             prefWidth="170.0"/>
+                             prefWidth="140.0"
+                             text="Modelo"/>
 
                 <!-- FABRICANTE -->
                 <TableColumn fx:id="colFabricante"
-                             text="Fabricante"
-                             prefWidth="190.0"/>
+                             prefWidth="150.0"
+                             text="Fabricante"/>
 
                 <!-- PESO -->
                 <TableColumn fx:id="colPeso"
-                             text="Peso"
-                             prefWidth="100.0"/>
+                             prefWidth="80.0"
+                             text="Peso"/>
+
+                <!-- TIPO -->
+                <TableColumn fx:id="colTipo"
+                             prefWidth="170.0"
+                             text="Tipo"/>
 
             </columns>
 
