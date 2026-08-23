@@ -1,4 +1,4 @@
-package co.edu.poli.sw2.servicios;
+package co.edu.poli.sw2.DAO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,6 +9,7 @@ import java.util.List;
 import co.edu.poli.sw2.modelo.Agricultura;
 import co.edu.poli.sw2.modelo.Drone;
 import co.edu.poli.sw2.modelo.Vigilancia;
+import co.edu.poli.sw2.servicios.ConexionBD;
 
 /**
  * DAO unico para Drone (clase abstracta). No existe columna "tipo" en la
