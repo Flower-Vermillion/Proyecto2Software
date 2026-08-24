@@ -10,11 +10,18 @@ import co.edu.poli.sw2.modelo.Agricultura;
 import co.edu.poli.sw2.modelo.Drone;
 import co.edu.poli.sw2.modelo.Vigilancia;
 import co.edu.poli.sw2.servicios.ConexionBD;
+import co.edu.poli.sw2.servicios.DroneCreator;
 
 /**
  * DAO unico para Drone (clase abstracta). No existe columna "tipo" en la
  * tabla drone: el tipo se determina segun en cual tabla hija aparece el
  * idDrone (droneAgricultura o droneVigilancia).
+ *
+ * La construccion de las instancias concretas (Agricultura / Vigilancia)
+ * se delega siempre a un {@link DroneCreator} (patrón Factory Method):
+ * el DAO obtiene el Creator adecuado con DroneCreator.paraTipo(tipo) y
+ * le pide que cree el Drone, sin usar "new Agricultura(...)" ni
+ * "new Vigilancia(...)" directamente.
  *
  * Esquema real (segun BD del usuario):
  *   drone(idDrone PK, serial, modelo, fabricante, peso)
@@ -93,13 +100,16 @@ public class DroneDAO implements CRUD<Drone> {
                 + "v.deteccionTermica "
                 + "FROM drone d JOIN droneVigilancia v ON d.idDrone = v.idDrone";
 
+        DroneCreator creatorAgricultura = DroneCreator.paraTipo(DroneCreator.TIPO_AGRICULTURA);
+        DroneCreator creatorVigilancia = DroneCreator.paraTipo(DroneCreator.TIPO_VIGILANCIA);
+
         try (Connection conexion = ConexionBD.getConexion()) {
 
             try (PreparedStatement ps = conexion.prepareStatement(sqlAgricultura);
                  ResultSet rs = ps.executeQuery()) {
 
                 while (rs.next()) {
-                    drones.add(new Agricultura(
+                    drones.add(creatorAgricultura.crearDrone(
                             rs.getString("idDrone"),
                             rs.getString("serial"),
                             rs.getString("modelo"),
@@ -114,7 +124,7 @@ public class DroneDAO implements CRUD<Drone> {
                  ResultSet rs = ps.executeQuery()) {
 
                 while (rs.next()) {
-                    drones.add(new Vigilancia(
+                    drones.add(creatorVigilancia.crearDrone(
                             rs.getString("idDrone"),
                             rs.getString("serial"),
                             rs.getString("modelo"),
@@ -206,7 +216,9 @@ public class DroneDAO implements CRUD<Drone> {
 
     private void insertarEnTablaHija(Connection conexion, Drone drone) throws Exception {
 
-        if (drone instanceof Agricultura agricultura) {
+        if (drone.getTipo().equals(DroneCreator.TIPO_AGRICULTURA)) {
+
+            Agricultura agricultura = (Agricultura) drone;
 
             String sql = "INSERT INTO droneAgricultura (idDrone, capacidadTanque) VALUES (?, ?)";
 
@@ -216,7 +228,9 @@ public class DroneDAO implements CRUD<Drone> {
                 ps.executeUpdate();
             }
 
-        } else if (drone instanceof Vigilancia vigilancia) {
+        } else if (drone.getTipo().equals(DroneCreator.TIPO_VIGILANCIA)) {
+
+            Vigilancia vigilancia = (Vigilancia) drone;
 
             String sql = "INSERT INTO droneVigilancia (idDrone, deteccionTermica) VALUES (?, ?)";
 
@@ -228,13 +242,15 @@ public class DroneDAO implements CRUD<Drone> {
 
         } else {
             throw new IllegalArgumentException(
-                    "Tipo de drone no soportado: " + drone.getClass());
+                    "Tipo de drone no soportado: " + drone.getTipo());
         }
     }
 
     private void actualizarTablaHija(Connection conexion, Drone drone) throws Exception {
 
-        if (drone instanceof Agricultura agricultura) {
+        if (drone.getTipo().equals(DroneCreator.TIPO_AGRICULTURA)) {
+
+            Agricultura agricultura = (Agricultura) drone;
 
             String sql = "UPDATE droneAgricultura SET capacidadTanque = ? WHERE idDrone = ?";
 
@@ -248,7 +264,9 @@ public class DroneDAO implements CRUD<Drone> {
                 }
             }
 
-        } else if (drone instanceof Vigilancia vigilancia) {
+        } else if (drone.getTipo().equals(DroneCreator.TIPO_VIGILANCIA)) {
+
+            Vigilancia vigilancia = (Vigilancia) drone;
 
             String sql = "UPDATE droneVigilancia SET deteccionTermica = ? WHERE idDrone = ?";
 
@@ -263,7 +281,7 @@ public class DroneDAO implements CRUD<Drone> {
 
         } else {
             throw new IllegalArgumentException(
-                    "Tipo de drone no soportado: " + drone.getClass());
+                    "Tipo de drone no soportado: " + drone.getTipo());
         }
     }
 
@@ -291,14 +309,15 @@ public class DroneDAO implements CRUD<Drone> {
             try (ResultSet rs = ps.executeQuery()) {
 
                 if (rs.next()) {
-                    return new Agricultura(
-                            rs.getString("idDrone"),
-                            rs.getString("serial"),
-                            rs.getString("modelo"),
-                            rs.getString("fabricante"),
-                            rs.getDouble("peso"),
-                            rs.getDouble("capacidadTanque")
-                    );
+                    return DroneCreator.paraTipo(DroneCreator.TIPO_AGRICULTURA)
+                            .crearDrone(
+                                    rs.getString("idDrone"),
+                                    rs.getString("serial"),
+                                    rs.getString("modelo"),
+                                    rs.getString("fabricante"),
+                                    rs.getDouble("peso"),
+                                    rs.getDouble("capacidadTanque")
+                            );
                 }
             }
         }
@@ -320,14 +339,15 @@ public class DroneDAO implements CRUD<Drone> {
             try (ResultSet rs = ps.executeQuery()) {
 
                 if (rs.next()) {
-                    return new Vigilancia(
-                            rs.getString("idDrone"),
-                            rs.getString("serial"),
-                            rs.getString("modelo"),
-                            rs.getString("fabricante"),
-                            rs.getDouble("peso"),
-                            rs.getBoolean("deteccionTermica")
-                    );
+                    return DroneCreator.paraTipo(DroneCreator.TIPO_VIGILANCIA)
+                            .crearDrone(
+                                    rs.getString("idDrone"),
+                                    rs.getString("serial"),
+                                    rs.getString("modelo"),
+                                    rs.getString("fabricante"),
+                                    rs.getDouble("peso"),
+                                    rs.getBoolean("deteccionTermica")
+                            );
                 }
             }
         }
