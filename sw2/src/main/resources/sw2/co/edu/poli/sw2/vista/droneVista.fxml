@@ -211,6 +211,14 @@
                 prefWidth="130.0"
                 styleClass="button-delete"
                 text="Eliminar"/>
+                
+        <Button layoutX="495.0"
+                layoutY="378.0"
+                onAction="#clonarDrone"
+                prefHeight="34.0"
+                prefWidth="130.0"
+                styleClass="button-clone"
+                text="Clonar"/>
 
 
         <!-- ===== TABLA ===== -->

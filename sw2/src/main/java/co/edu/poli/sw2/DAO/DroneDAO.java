@@ -118,7 +118,7 @@ public class DroneDAO implements CRUD<Drone> {
                             rs.getString("modelo"),
                             rs.getString("fabricante"),
                             rs.getDouble("peso"),
-                            rs.getDouble("capacidadTanque")
+                            String.valueOf(rs.getDouble("capacidadTanque"))
                     ));
                 }
             }
@@ -133,7 +133,7 @@ public class DroneDAO implements CRUD<Drone> {
                             rs.getString("modelo"),
                             rs.getString("fabricante"),
                             rs.getDouble("peso"),
-                            rs.getBoolean("deteccionTermica")
+                            String.valueOf(rs.getBoolean("deteccionTermica"))
                     ));
                 }
             }
@@ -319,7 +319,7 @@ public class DroneDAO implements CRUD<Drone> {
                                     rs.getString("modelo"),
                                     rs.getString("fabricante"),
                                     rs.getDouble("peso"),
-                                    rs.getDouble("capacidadTanque")
+                                    String.valueOf(rs.getDouble("capacidadTanque"))
                             );
                 }
             }
@@ -349,7 +349,7 @@ public class DroneDAO implements CRUD<Drone> {
                                     rs.getString("modelo"),
                                     rs.getString("fabricante"),
                                     rs.getDouble("peso"),
-                                    rs.getBoolean("deteccionTermica")
+                                    String.valueOf(rs.getBoolean("deteccionTermica"))
                             );
                 }
             }

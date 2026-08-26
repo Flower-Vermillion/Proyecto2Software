@@ -9,6 +9,11 @@ import co.edu.poli.sw2.modelo.Drone;
  * concreta (ConcreteCreator) debe implementar para producir su propio
  * tipo de Drone (el "Product" de este patrón).
  *
+ * El atributo específico de cada tipo de drone (capacidadTanque,
+ * deteccionTermica, ...) ya no llega como {@code Object}: llega como
+ * {@code String}. Cada ConcreteCreator es responsable de convertirlo
+ * a su tipo real (Double.parseDouble, Boolean.parseBoolean, ...).
+ *
  * El cliente (por ejemplo DroneDAO) no necesita conocer las clases
  * concretas Agricultura o Vigilancia: solo trabaja con un DroneCreator
  * y con el tipo Drone que este devuelve.
@@ -22,13 +27,15 @@ public abstract class DroneCreator {
      * Factory Method. Cada ConcreteCreator decide qué subclase de
      * Drone instanciar y cómo construirla.
      *
-     * @param atributoEspecifico capacidadTanque (Number) si el creator
-     *                           es de Agricultura, o deteccionTermica
-     *                           (Boolean) si es de Vigilancia.
+     * @param atributoEspecifico capacidadTanque como texto (ej. "12.5")
+     *                           si el creator es de Agricultura, o
+     *                           deteccionTermica como texto (ej. "true")
+     *                           si es de Vigilancia. Cada ConcreteCreator
+     *                           hace el parseo a su tipo real.
      */
     public abstract Drone crearDrone(String id, String serial, String modelo,
                                       String fabricante, double peso,
-                                      Object atributoEspecifico);
+                                      String atributoEspecifico);
 
     /**
      * Punto único donde se decide qué ConcreteCreator usar según el

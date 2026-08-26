@@ -9,14 +9,18 @@ import co.edu.poli.sw2.modelo.Drone;
  */
 public class AgriculturaCreator extends DroneCreator {
 
-@Override
+    @Override
     public Drone crearDrone(String id, String serial, String modelo,
                              String fabricante, double peso,
-                             Object atributoEspecifico) {
+                             String atributoEspecifico) {
 
-        double capacidadTanque = (atributoEspecifico instanceof Number)
-                ? ((Number) atributoEspecifico).doubleValue()
-                : 0.0;
+        double capacidadTanque;
+        try {
+            capacidadTanque = Double.parseDouble(atributoEspecifico.trim());
+        } catch (NullPointerException | NumberFormatException e) {
+            throw new IllegalArgumentException(
+                    "capacidadTanque inválida: \"" + atributoEspecifico + "\"", e);
+        }
 
         return new Agricultura(id, serial, modelo, fabricante, peso, capacidadTanque);
     }

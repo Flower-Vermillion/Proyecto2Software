@@ -12,11 +12,10 @@ public class VigilanciaCreator extends DroneCreator {
     @Override
     public Drone crearDrone(String id, String serial, String modelo,
                              String fabricante, double peso,
-                             Object atributoEspecifico) {
+                             String atributoEspecifico) {
 
-        boolean deteccionTermica = (atributoEspecifico instanceof Boolean)
-                ? (Boolean) atributoEspecifico
-                : Boolean.parseBoolean(String.valueOf(atributoEspecifico));
+        boolean deteccionTermica = Boolean.parseBoolean(
+                atributoEspecifico != null ? atributoEspecifico.trim() : "false");
 
         return new Vigilancia(id, serial, modelo, fabricante, peso, deteccionTermica);
     }

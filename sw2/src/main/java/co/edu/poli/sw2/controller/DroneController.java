@@ -16,6 +16,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import co.edu.poli.sw2.servicios.ConcretePrototype;
 
 /**
  * NOTA: este controller ahora maneja tanto Agricultura como Vigilancia
@@ -293,6 +294,46 @@ public class DroneController {
             );
         }
     }
+    
+    // =========================
+    // CLONAR (patrón Prototype)
+    // =========================
+
+    /**
+     * Toma el drone seleccionado en la tabla y le pide a un
+     * ConcretePrototype que lo clone. El clon es solo en memoria
+     * (no se guarda en base de datos); al usuario se le muestra el id
+     * del drone copiado junto con la dirección de memoria del
+     * original y la del clon recién creado.
+     */
+    @FXML
+    private void clonarDrone(ActionEvent event) {
+
+        Drone seleccionado = tblDrones.getSelectionModel().getSelectedItem();
+
+        if (seleccionado == null) {
+            mostrarError(
+                    "Dato requerido",
+                    "Seleccione un drone de la tabla para clonarlo."
+            );
+            return;
+        }
+
+        try {
+
+            ConcretePrototype prototype = new ConcretePrototype(seleccionado);
+            Drone clon = prototype.clonar();
+
+            mostrarInformacion("Drone clonado", prototype.mensajeClonado(clon));
+
+        } catch (Exception e) {
+
+            mostrarError(
+                    "Error",
+                    "No se pudo clonar el drone.\n\n" + e.getMessage()
+            );
+        }
+    }
 
     // =========================
     // CONSTRUIR DRONE (Agricultura o Vigilancia) DESDE EL FORMULARIO
@@ -340,16 +381,14 @@ public class DroneController {
                 return null;
             }
 
-            double capacidadTanque = Double.parseDouble(
-                    txtCapacidadTanque.getText().trim()
-            );
+            String capacidadTanque = txtCapacidadTanque.getText().trim();
 
             return DroneCreator.paraTipo(DroneCreator.TIPO_AGRICULTURA)
                     .crearDrone(id, serial, modelo, fabricante, peso, capacidadTanque);
 
         } else { // "Vigilancia"
 
-            boolean deteccionTermica = chkDeteccionTermica.isSelected();
+            String deteccionTermica = String.valueOf(chkDeteccionTermica.isSelected());
 
             return DroneCreator.paraTipo(DroneCreator.TIPO_VIGILANCIA)
                     .crearDrone(id, serial, modelo, fabricante, peso, deteccionTermica);

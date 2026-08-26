@@ -71,6 +71,19 @@
     -fx-background-color: #c62828;
 }
 
+.button-clone {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-background-color: #6a1b9a;
+}
+
+.button-clone:hover {
+    -fx-background-color: #4a148c;
+}
+
 .button-delete:hover {
     -fx-background-color: #8e0000;
 }
