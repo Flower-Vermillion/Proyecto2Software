@@ -23,6 +23,9 @@ import co.edu.poli.sw2.servicios.DroneCreator;
  * le pide que cree el Drone, sin usar "new Agricultura(...)" ni
  * "new Vigilancia(...)" directamente.
  *
+ * La conexion se obtiene siempre a traves de ConexionBD.getInstancia()
+ * (patrón Singleton): nunca se instancia ConexionBD directamente.
+ *
  * Esquema real (segun BD del usuario):
  *   drone(idDrone PK, serial, modelo, fabricante, peso)
  *   droneAgricultura(capacidadTanque, idDrone FK -> drone)
@@ -41,7 +44,7 @@ public class DroneDAO implements CRUD<Drone> {
                 + "(idDrone, serial, modelo, fabricante, peso) "
                 + "VALUES (?, ?, ?, ?, ?)";
 
-        try (Connection conexion = ConexionBD.getConexion()) {
+        try (Connection conexion = ConexionBD.getInstancia().getConexion()) {
 
             try (PreparedStatement ps = conexion.prepareStatement(sqlDrone)) {
 
@@ -69,7 +72,7 @@ public class DroneDAO implements CRUD<Drone> {
 
         String idStr = id.toString();
 
-        try (Connection conexion = ConexionBD.getConexion()) {
+        try (Connection conexion = ConexionBD.getInstancia().getConexion()) {
 
             Drone drone = buscarComoAgricultura(conexion, idStr);
 
@@ -103,7 +106,7 @@ public class DroneDAO implements CRUD<Drone> {
         DroneCreator creatorAgricultura = DroneCreator.paraTipo(DroneCreator.TIPO_AGRICULTURA);
         DroneCreator creatorVigilancia = DroneCreator.paraTipo(DroneCreator.TIPO_VIGILANCIA);
 
-        try (Connection conexion = ConexionBD.getConexion()) {
+        try (Connection conexion = ConexionBD.getInstancia().getConexion()) {
 
             try (PreparedStatement ps = conexion.prepareStatement(sqlAgricultura);
                  ResultSet rs = ps.executeQuery()) {
@@ -153,7 +156,7 @@ public class DroneDAO implements CRUD<Drone> {
                 + "peso = ? "
                 + "WHERE idDrone = ?";
 
-        try (Connection conexion = ConexionBD.getConexion()) {
+        try (Connection conexion = ConexionBD.getInstancia().getConexion()) {
 
             int filas;
 
@@ -186,7 +189,7 @@ public class DroneDAO implements CRUD<Drone> {
 
         String idStr = id.toString();
 
-        try (Connection conexion = ConexionBD.getConexion()) {
+        try (Connection conexion = ConexionBD.getInstancia().getConexion()) {
 
             // Se borra primero de las tablas hijas por las FK.
             // No afecta filas si el id no existe en esa tabla.

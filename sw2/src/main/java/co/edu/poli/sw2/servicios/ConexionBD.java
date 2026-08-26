@@ -6,7 +6,25 @@ import java.sql.SQLException;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
+/**
+ * Clase encargada de gestionar la conexión con la base de datos.
+ * <p>
+ * Implementa el patrón Singleton: existe una única instancia de
+ * {@code ConexionBD} durante toda la ejecución del programa, obtenida
+ * siempre a través de {@link #getInstancia()}.
+ * </p>
+ */
 public class ConexionBD {
+
+    /**
+     * Instancia única de la clase.
+     */
+    private static ConexionBD instancia;
+
+    /**
+     * Conexión activa con la base de datos.
+     */
+    private Connection conexion;
 
     // Carga el archivo .env ubicado en la raíz del proyecto (junto al pom.xml).
     // ignoreIfMissing() evita que falle si alguien no tiene el archivo (por
@@ -19,9 +37,18 @@ public class ConexionBD {
     private static final String USUARIO = obtenerVariable("DB_USER");
     private static final String PASSWORD = obtenerVariable("DB_PASSWORD");
 
-    private static Connection conexion;
-
+    /**
+     * Constructor privado que inicializa la conexión con la base de datos.
+     * Al ser privado, nadie fuera de esta clase puede hacer
+     * {@code new ConexionBD()}; la única vía de acceso es
+     * {@link #getInstancia()}.
+     */
     private ConexionBD() {
+        try {
+            conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al conectar con la base de datos", e);
+        }
     }
 
     /**
@@ -49,20 +76,40 @@ public class ConexionBD {
         return valor;
     }
 
-    public static Connection getConexion() throws SQLException {
+    /**
+     * Obtiene la instancia única de la clase.
+     * Si la instancia no existe todavía, se crea (inicialización perezosa).
+     *
+     * @return instancia única de {@code ConexionBD}
+     */
+    public static synchronized ConexionBD getInstancia() {
+
+        if (instancia == null) {
+            instancia = new ConexionBD();
+        }
+
+        return instancia;
+    }
+
+    /**
+     * Retorna la conexión activa con la base de datos.
+     * Si la conexión está cerrada o no existe, se abre de nuevo.
+     *
+     * @return conexión activa de tipo {@link Connection}
+     */
+    public Connection getConexion() throws SQLException {
 
         if (conexion == null || conexion.isClosed()) {
-            conexion = DriverManager.getConnection(
-                URL,
-                USUARIO,
-                PASSWORD
-            );
+            conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
         }
 
         return conexion;
     }
 
-    public static void cerrarConexion() {
+    /**
+     * Cierra la conexión activa, si existe.
+     */
+    public void cerrarConexion() {
 
         if (conexion != null) {
             try {

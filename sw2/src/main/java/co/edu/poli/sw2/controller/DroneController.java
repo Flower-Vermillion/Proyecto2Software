@@ -4,6 +4,7 @@ import co.edu.poli.sw2.DAO.DroneDAO;
 import co.edu.poli.sw2.modelo.Agricultura;
 import co.edu.poli.sw2.modelo.Drone;
 import co.edu.poli.sw2.modelo.Vigilancia;
+import co.edu.poli.sw2.servicios.DroneCreator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -25,6 +26,10 @@ import javafx.scene.control.cell.PropertyValueFactory;
  *   - CheckBox chkDeteccionTermica   (solo aplica si tipo = Vigilancia)
  *
  * fx:id de esos controles deben coincidir con los campos @FXML de abajo.
+ *
+ * La construccion de los objetos Agricultura/Vigilancia se delega siempre
+ * a DroneCreator (patrón Factory Method): este controller nunca hace
+ * "new Agricultura(...)" ni "new Vigilancia(...)" directamente.
  */
 public class DroneController {
 
@@ -295,7 +300,11 @@ public class DroneController {
 
     /**
      * Valida los campos comunes + el campo especifico segun cbTipo,
-     * y arma el objeto Agricultura o Vigilancia correspondiente.
+     * y le pide al DroneCreator correspondiente que arme el objeto
+     * Agricultura o Vigilancia. Nunca hace "new Agricultura(...)" ni
+     * "new Vigilancia(...)" directamente: eso queda encapsulado en el
+     * Factory Method (DroneCreator / AgriculturaCreator / VigilanciaCreator).
+     *
      * Devuelve null (y muestra alerta) si algo obligatorio falta.
      */
     private Drone construirDroneDesdeFormulario(boolean validarId) {
@@ -335,13 +344,15 @@ public class DroneController {
                     txtCapacidadTanque.getText().trim()
             );
 
-            return new Agricultura(id, serial, modelo, fabricante, peso, capacidadTanque);
+            return DroneCreator.paraTipo(DroneCreator.TIPO_AGRICULTURA)
+                    .crearDrone(id, serial, modelo, fabricante, peso, capacidadTanque);
 
         } else { // "Vigilancia"
 
             boolean deteccionTermica = chkDeteccionTermica.isSelected();
 
-            return new Vigilancia(id, serial, modelo, fabricante, peso, deteccionTermica);
+            return DroneCreator.paraTipo(DroneCreator.TIPO_VIGILANCIA)
+                    .crearDrone(id, serial, modelo, fabricante, peso, deteccionTermica);
         }
     }
 

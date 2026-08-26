@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * IMPORTANTE: esta es una prueba de INTEGRACIÓN, no una prueba unitaria
  * aislada. Se conecta a la base de datos real (a través de
- * ConexionBD.getConexion()) y los registros que crea quedan
+ * ConexionBD.getInstancia().getConexion()) y los registros que crea quedan
  * guardados en las tablas drone / droneAgricultura / droneVigilancia:
  * no hay @AfterEach ni rollback que los borre.
  *
