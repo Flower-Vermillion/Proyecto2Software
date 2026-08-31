@@ -5,6 +5,7 @@ import co.edu.poli.sw2.modelo.Agricultura;
 import co.edu.poli.sw2.modelo.Drone;
 import co.edu.poli.sw2.modelo.Vigilancia;
 import co.edu.poli.sw2.servicios.DroneCreator;
+import co.edu.poli.sw2.servicios.Builder;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -334,6 +335,80 @@ public class DroneController {
             );
         }
     }
+    
+    @FXML
+    private void construirConBuilder(ActionEvent event) {
+
+        if (cbTipo.getValue() == null) {
+
+            mostrarError(
+                    "Datos incompletos",
+                    "Debe seleccionar el tipo de drone."
+            );
+            return;
+        }
+
+        String id = txtId.getText().trim();
+        String serial = txtSerial.getText().trim();
+        double peso = txtPeso.getText().trim().isEmpty()
+                ? 0.0
+                : Double.parseDouble(txtPeso.getText().trim());
+        String modelo = txtModelo.getText().trim();
+        String fabricante = txtFabricante.getText().trim();
+        String tipo = cbTipo.getValue();
+
+        String atributoEspecifico;
+
+        if ("Agricultura".equals(tipo)) {
+
+            atributoEspecifico = txtCapacidadTanque.getText().trim();
+
+        } else {
+            atributoEspecifico = String.valueOf(chkDeteccionTermica.isSelected());
+        }
+
+        try {
+
+            Drone drone = new Builder()
+                    .conId(id)
+                    .conSerial(serial)
+                    .conModelo(modelo)
+                    .conFabricante(fabricante)
+                    .conPeso(peso)
+                    .conTipo(tipo)
+                    .conAtributoEspecifico(atributoEspecifico)
+                    .build();
+            
+            String detalleEspecifico;
+
+            if (drone instanceof Agricultura agricultura) {
+                detalleEspecifico = "Capacidad tanque: " + agricultura.getCapacidadTanque() + " L";
+            } else if (drone instanceof Vigilancia vigilancia) {
+                detalleEspecifico = vigilancia.isDeteccionTermica()
+                        ? "Detección térmica: Sí"
+                        : "Detección térmica: No especificado";
+            } else {
+                detalleEspecifico = "";
+            }
+
+            mostrarInformacion(
+                    "Drone creado",
+                    "Se construyó el drone \"" + valorOMostrar(drone.getId()) + "\" (" + drone.getTipo() + ").\n\n"
+                            + "Serial: " + valorOMostrar(drone.getSerial()) + "\n"
+                            + "Modelo: " + valorOMostrar(drone.getModelo()) + "\n"
+                            + "Fabricante: " + valorOMostrar(drone.getFabricante()) + "\n"
+                            + "Peso: " + (drone.getPeso() > 0 ? drone.getPeso() + " kg" : "No especificado") + "\n"
+                            + detalleEspecifico
+            );
+
+        } catch (Exception e) {
+
+            mostrarError(
+                    "Error",
+                    "No se pudo construir el drone.\n\n" + e.getMessage()
+            );
+        }
+    }
 
     // =========================
     // CONSTRUIR DRONE (Agricultura o Vigilancia) DESDE EL FORMULARIO
@@ -418,12 +493,16 @@ public class DroneController {
     // =========================
 
     private void mostrarInformacion(String titulo, String mensaje) {
-
+    	
         Alert alerta = new Alert(Alert.AlertType.INFORMATION);
         alerta.setTitle(titulo);
         alerta.setHeaderText(null);
         alerta.setContentText(mensaje);
         alerta.showAndWait();
+    }
+    
+    private String valorOMostrar(String valor) {
+        return (valor == null || valor.trim().isEmpty()) ? "No especificado" : valor;
     }
 
     // =========================

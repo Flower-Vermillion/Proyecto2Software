@@ -59,6 +59,19 @@
     -fx-background-color: #1b5e20;
 }
 
+.button-build {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-background-color: #e65100;
+}
+
+.button-build:hover {
+    -fx-background-color: #bf360c;
+}
+
 .button-modify {
     -fx-background-color: #1565c0;
 }

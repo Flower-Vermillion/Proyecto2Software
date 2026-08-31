@@ -195,6 +195,14 @@
                 prefWidth="130.0"
                 styleClass="button-save"
                 text="Guardar"/>
+                
+        <Button layoutX="175.0"
+                layoutY="378.0"
+                onAction="#construirConBuilder"
+                prefHeight="34.0"
+                prefWidth="130.0"
+                styleClass="button-build"
+                text="Construir"/>
 
         <Button layoutX="335.0"
                 layoutY="378.0"
