@@ -3,21 +3,38 @@ package co.edu.poli.sw2.controller;
 import co.edu.poli.sw2.DAO.DroneDAO;
 import co.edu.poli.sw2.modelo.Agricultura;
 import co.edu.poli.sw2.modelo.Drone;
+import co.edu.poli.sw2.modelo.Sensor;
 import co.edu.poli.sw2.modelo.Vigilancia;
-import co.edu.poli.sw2.servicios.DroneCreator;
+import co.edu.poli.sw2.servicios.BateriaAdicionalDecorator;
 import co.edu.poli.sw2.servicios.Builder;
+import co.edu.poli.sw2.servicios.ConcretePrototype;
+import co.edu.poli.sw2.servicios.ControlAutonomo;
+import co.edu.poli.sw2.servicios.ControlBasico;
+import co.edu.poli.sw2.servicios.ControlDron;
+import co.edu.poli.sw2.servicios.DroneComponent;
+import co.edu.poli.sw2.servicios.DroneCreator;
+import co.edu.poli.sw2.servicios.DroneWrapper;
+import co.edu.poli.sw2.servicios.SensorComposite;
+import co.edu.poli.sw2.servicios.SensorWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import co.edu.poli.sw2.servicios.ConcretePrototype;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 /**
  * NOTA: este controller ahora maneja tanto Agricultura como Vigilancia
@@ -85,6 +102,17 @@ public class DroneController {
 
     private DroneDAO droneDAO;
 
+    // Nuevo: selector de tipo de control (patrón Bridge)
+@FXML
+private ComboBox<String> cbTipoControl;
+
+// Nuevo: batería adicional (patrón Decorator)
+@FXML
+private CheckBox chkBateriaAdicional;
+
+@FXML
+private TextField txtDescripcionBateria;
+
     // =========================
     // INICIALIZAR
     // =========================
@@ -97,6 +125,11 @@ public class DroneController {
         cbTipo.setItems(
                 FXCollections.observableArrayList("Agricultura", "Vigilancia")
         );
+
+   
+cbTipoControl.setItems(
+        FXCollections.observableArrayList("Básico", "Autónomo")
+);
 
         configurarTabla();
 
@@ -336,6 +369,109 @@ public class DroneController {
         }
     }
     
+    // =========================
+// APLICAR CONTROL (patrón Bridge)
+// =========================
+
+/**
+ * Toma el drone seleccionado en la tabla y le aplica el modo de
+ * control elegido en cbTipoControl (Básico o Autónomo), delegando
+ * la ejecución al DroneControlImplementor correspondiente. Es una
+ * demostración funcional en memoria: no se guarda en base de datos.
+ */
+@FXML
+private void aplicarControl(ActionEvent event) {
+
+    Drone seleccionado = tblDrones.getSelectionModel().getSelectedItem();
+
+    if (seleccionado == null) {
+        mostrarError(
+                "Dato requerido",
+                "Seleccione un drone de la tabla para aplicarle un control."
+        );
+        return;
+    }
+
+    if (cbTipoControl.getValue() == null) {
+        mostrarError(
+                "Dato requerido",
+                "Seleccione el tipo de control (Básico o Autónomo)."
+        );
+        return;
+    }
+
+    try {
+
+        ControlDron.DroneControlImplementor implementor = "Autónomo".equals(cbTipoControl.getValue())
+                ? new ControlAutonomo()
+                : new ControlBasico();
+
+        ControlDron controlDron = new ControlDron(implementor);
+
+        mostrarInformacion("Control aplicado", controlDron.activar(seleccionado));
+
+    } catch (Exception e) {
+
+        mostrarError(
+                "Error",
+                "No se pudo aplicar el control.\n\n" + e.getMessage()
+        );
+    }
+}
+
+// =========================
+// VER DESCRIPCIÓN CON BATERÍA ADICIONAL (patrón Decorator)
+// =========================
+
+/**
+ * Toma el drone seleccionado en la tabla y arma su descripción;
+ * si chkBateriaAdicional está marcado, la envuelve con
+ * BateriaAdicionalDecorator usando el texto de
+ * txtDescripcionBateria. Es una demostración funcional en
+ * memoria: no se guarda en base de datos.
+ */
+@FXML
+private void verDescripcionDecorator(ActionEvent event) {
+
+    Drone seleccionado = tblDrones.getSelectionModel().getSelectedItem();
+
+    if (seleccionado == null) {
+        mostrarError(
+                "Dato requerido",
+                "Seleccione un drone de la tabla para ver su descripción."
+        );
+        return;
+    }
+
+    try {
+
+        DroneComponent componente = new DroneWrapper(seleccionado);
+
+        if (chkBateriaAdicional.isSelected()) {
+
+            String descripcionBateria = txtDescripcionBateria.getText().trim();
+
+            if (descripcionBateria.isEmpty()) {
+                mostrarError(
+                        "Dato requerido",
+                        "Ingrese la descripción de la batería adicional."
+                );
+                return;
+            }
+
+            componente = new BateriaAdicionalDecorator(componente, descripcionBateria);
+        }
+
+        mostrarInformacion("Descripción del drone", componente.getDescripcion());
+
+    } catch (Exception e) {
+
+        mostrarError(
+                "Error",
+                "No se pudo generar la descripción.\n\n" + e.getMessage()
+        );
+    }
+}
     @FXML
     private void construirConBuilder(ActionEvent event) {
 
@@ -411,6 +547,234 @@ public class DroneController {
     }
 
     // =========================
+    // VER SENSORES (patrón Composite)
+    // =========================
+
+    /**
+     * Abre una ventana emergente (Stage independiente) donde se puede
+     * armar un SensorComposite en memoria: agregar varios Sensor,
+     * eliminarlos por id, y ver la descripción combinada de todos los
+     * que estén agregados en ese momento. No se persiste en base de
+     * datos; es una demostración funcional del patrón Composite,
+     * igual de "en memoria" que Prototype, Bridge y Decorator.
+     */
+    @FXML
+    private void abrirVentanaComposite(ActionEvent event) {
+
+        SensorComposite composite = new SensorComposite("Sensores agregados");
+
+        TextField txtSensorId = new TextField();
+        txtSensorId.setPromptText("ID (número)");
+
+        TextField txtSensorTipo = new TextField();
+        txtSensorTipo.setPromptText("Tipo");
+
+        TextField txtSensorFabricante = new TextField();
+        txtSensorFabricante.setPromptText("Fabricante");
+
+        TextArea txtDescripcionComposite = new TextArea();
+        txtDescripcionComposite.setEditable(false);
+        txtDescripcionComposite.setWrapText(true);
+        txtDescripcionComposite.setPrefHeight(220);
+        txtDescripcionComposite.setText(composite.obtenerDescripcion());
+
+        Button btnAgregar = new Button("Agregar sensor");
+        btnAgregar.setOnAction(e -> {
+
+            try {
+
+                if (txtSensorId.getText().trim().isEmpty()
+                        || txtSensorTipo.getText().trim().isEmpty()
+                        || txtSensorFabricante.getText().trim().isEmpty()) {
+
+                    mostrarError(
+                            "Datos incompletos",
+                            "Debe completar id, tipo y fabricante del sensor."
+                    );
+                    return;
+                }
+
+                int idSensor = Integer.parseInt(txtSensorId.getText().trim());
+
+                Sensor sensor = new Sensor(
+                        idSensor,
+                        txtSensorTipo.getText().trim(),
+                        txtSensorFabricante.getText().trim()
+                );
+
+                String resultado = composite.agregar(sensor);
+                txtDescripcionComposite.setText(composite.obtenerDescripcion());
+
+                txtSensorId.clear();
+                txtSensorTipo.clear();
+                txtSensorFabricante.clear();
+
+                mostrarInformacion("Sensor agregado", resultado);
+
+            } catch (NumberFormatException ex) {
+
+                mostrarError(
+                        "Dato inválido",
+                        "El id del sensor debe ser un número entero."
+                );
+
+            } catch (Exception ex) {
+
+                mostrarError(
+                        "Error",
+                        "No se pudo agregar el sensor.\n\n" + ex.getMessage()
+                );
+            }
+        });
+
+        Button btnEliminar = new Button("Eliminar sensor");
+        btnEliminar.setOnAction(e -> {
+
+            try {
+
+                if (txtSensorId.getText().trim().isEmpty()) {
+
+                    mostrarError(
+                            "Dato requerido",
+                            "Ingrese el id del sensor a eliminar."
+                    );
+                    return;
+                }
+
+                int idSensor = Integer.parseInt(txtSensorId.getText().trim());
+
+                Sensor sensor = new Sensor(idSensor, "", "");
+
+                String resultado = composite.eliminar(sensor);
+                txtDescripcionComposite.setText(composite.obtenerDescripcion());
+
+                mostrarInformacion("Eliminar sensor", resultado);
+
+            } catch (NumberFormatException ex) {
+
+                mostrarError(
+                        "Dato inválido",
+                        "El id del sensor debe ser un número entero."
+                );
+
+            } catch (Exception ex) {
+
+                mostrarError(
+                        "Error",
+                        "No se pudo eliminar el sensor.\n\n" + ex.getMessage()
+                );
+            }
+        });
+
+        HBox filaCampos = new HBox(10, txtSensorId, txtSensorTipo, txtSensorFabricante);
+        HBox filaBotones = new HBox(10, btnAgregar, btnEliminar);
+
+        VBox contenedor = new VBox(
+                10,
+                new Label("Agregar / eliminar sensores del composite:"),
+                filaCampos,
+                filaBotones,
+                new Label("Descripción combinada (Composite):"),
+                txtDescripcionComposite
+        );
+        contenedor.setPadding(new Insets(15));
+
+        Stage ventana = new Stage();
+        ventana.setTitle("Sensores (patrón Composite)");
+        ventana.setScene(new Scene(contenedor, 480, 400));
+        ventana.show();
+    }
+
+    // =========================
+    // DEMO: ÁRBOL DE SENSORES DEL DIAGRAMA (patrón Composite)
+    // =========================
+
+    /**
+     * Construye EXACTAMENTE el árbol de sensores pedido por el
+     * profesor:
+     *
+     *   Sensor General
+     *     - Sensor Temperatura
+     *         - Sensor Infrarrojo
+     *         - RTD
+     *     - Sensor Cámara
+     *         - Sensor CMOS
+     *         - Sensor CCD
+     *     - Sensor Sonido
+     *         - Sensor Analógico
+     *         - Sensor Digital
+     *             - SPI
+     *             - UART
+     *     - Sensor Inteligente
+     *
+     * Es una demostración puramente en memoria (no se guarda en base
+     * de datos) y la salida es texto plano ("crudo"): el objetivo es
+     * demostrar la LÓGICA del patrón (un Composite puede contener
+     * hojas y otros Composites, y todos se tratan de forma uniforme
+     * a través de obtenerDescripcion()), no una representación
+     * gráfica del árbol.
+     */
+    @FXML
+    private void mostrarArbolSensoresDemo(ActionEvent event) {
+
+        try {
+
+            int contadorId = 1;
+
+            SensorComposite sensorGeneral = new SensorComposite("Sensor General");
+
+            SensorComposite sensorTemperatura = new SensorComposite("Sensor Temperatura");
+            sensorTemperatura.agregar(new Sensor(contadorId++, "Sensor Infrarrojo", "N/A"));
+            sensorTemperatura.agregar(new Sensor(contadorId++, "RTD", "N/A"));
+
+            SensorComposite sensorCamara = new SensorComposite("Sensor Cámara");
+            sensorCamara.agregar(new Sensor(contadorId++, "Sensor CMOS", "N/A"));
+            sensorCamara.agregar(new Sensor(contadorId++, "Sensor CCD", "N/A"));
+
+            SensorComposite sensorDigital = new SensorComposite("Sensor Digital");
+            sensorDigital.agregar(new Sensor(contadorId++, "SPI", "N/A"));
+            sensorDigital.agregar(new Sensor(contadorId++, "UART", "N/A"));
+
+            SensorComposite sensorSonido = new SensorComposite("Sensor Sonido");
+            sensorSonido.agregar(new Sensor(contadorId++, "Sensor Analógico", "N/A"));
+            sensorSonido.agregar(sensorDigital); // Composite dentro de Composite
+
+            SensorWrapper sensorInteligente = new SensorWrapper(
+                    new Sensor(contadorId++, "Sensor Inteligente", "N/A")
+            );
+
+            sensorGeneral.agregar(sensorTemperatura);
+            sensorGeneral.agregar(sensorCamara);
+            sensorGeneral.agregar(sensorSonido);
+            sensorGeneral.agregar(sensorInteligente);
+
+            TextArea txtArbol = new TextArea(sensorGeneral.obtenerDescripcion());
+            txtArbol.setEditable(false);
+            txtArbol.setWrapText(false);
+            txtArbol.setPrefSize(420, 320);
+
+            VBox contenedor = new VBox(
+                    10,
+                    new Label("Árbol de sensores construido con el patrón Composite:"),
+                    txtArbol
+            );
+            contenedor.setPadding(new Insets(15));
+
+            Stage ventana = new Stage();
+            ventana.setTitle("Demo Composite: árbol de sensores");
+            ventana.setScene(new Scene(contenedor, 460, 400));
+            ventana.show();
+
+        } catch (Exception e) {
+
+            mostrarError(
+                    "Error",
+                    "No se pudo construir el árbol de sensores.\n\n" + e.getMessage()
+            );
+        }
+    }
+
+    // =========================
     // CONSTRUIR DRONE (Agricultura o Vigilancia) DESDE EL FORMULARIO
     // =========================
 
@@ -419,6 +783,7 @@ public class DroneController {
      * y le pide al DroneCreator correspondiente que arme el objeto
      * Agricultura o Vigilancia. Nunca hace "new Agricultura(...)" ni
      * "new Vigilancia(...)" directamente: eso queda encapsulado en el
+
      * Factory Method (DroneCreator / AgriculturaCreator / VigilanciaCreator).
      *
      * Devuelve null (y muestra alerta) si algo obligatorio falta.
