@@ -1,41 +1,110 @@
-.root-pane {
-    -fx-background-color: #f4f6f9;
+/* ============================================================
+   Gestión de Drones - Hoja de estilos
+   ============================================================ */
+
+/* ---------- Base ---------- */
+
+.app-root {
+    -fx-background-color: #eef1f6;
+}
+
+.root-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-padding: 0;
+}
+
+.root-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.content-box {
+    -fx-background-color: transparent;
+}
+
+/* ---------- Encabezado ---------- */
+
+.app-header {
+    -fx-background-color: linear-gradient(to right, #1a237e, #303f9f);
 }
 
 .app-title {
+    -fx-font-size: 27px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.app-subtitle {
+    -fx-font-size: 12.5px;
+    -fx-text-fill: #c5cae9;
+}
+
+/* ---------- Tarjetas ---------- */
+
+.card-panel {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-color: #e1e5ec;
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(26, 35, 126, 0.07), 12, 0, 0, 3);
+}
+
+.card-title {
+    -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-text-fill: #1a237e;
 }
 
 .section-title {
+    -fx-font-size: 13.5px;
     -fx-font-weight: bold;
-    -fx-text-fill: #37474f;
-    -fx-font-size: 14px;
+    -fx-text-fill: #455a64;
 }
 
+.help-text {
+    -fx-font-size: 12px;
+    -fx-text-fill: #78909c;
+}
+
+/* ---------- Formularios ---------- */
+
 .form-label {
-    -fx-font-size: 14px;
+    -fx-font-size: 13.5px;
     -fx-text-fill: #37474f;
 }
 
 .text-field-custom {
-    -fx-background-color: white;
-    -fx-background-radius: 6;
-    -fx-border-radius: 6;
-    -fx-border-color: #c9d1d9;
-    -fx-padding: 6 10 6 10;
+    -fx-background-color: #fbfcfe;
+    -fx-background-radius: 7;
+    -fx-border-radius: 7;
+    -fx-border-color: #cfd8dc;
+    -fx-padding: 9 12 9 12;
     -fx-font-size: 13px;
+    -fx-prompt-text-fill: #b0bec5;
 }
 
 .text-field-custom:focused {
+    -fx-background-color: white;
     -fx-border-color: #3f51b5;
+    -fx-effect: dropshadow(gaussian, rgba(63, 81, 181, 0.18), 6, 0, 0, 0);
 }
 
 .combo-custom {
-    -fx-background-color: white;
-    -fx-background-radius: 6;
-    -fx-border-radius: 6;
-    -fx-border-color: #c9d1d9;
+    -fx-background-color: #fbfcfe;
+    -fx-background-radius: 7;
+    -fx-border-radius: 7;
+    -fx-border-color: #cfd8dc;
+    -fx-padding: 3 4 3 4;
+    -fx-font-size: 13px;
+}
+
+.combo-custom:focused {
+    -fx-border-color: #3f51b5;
+}
+
+.combo-custom .list-cell {
+    -fx-text-fill: #37474f;
+    -fx-padding: 5 8 5 8;
 }
 
 .check-custom {
@@ -43,84 +112,134 @@
     -fx-text-fill: #37474f;
 }
 
-.button-save, .button-modify, .button-delete {
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-background-radius: 6;
-    -fx-cursor: hand;
-    -fx-font-size: 13px;
+.check-custom .box {
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-border-color: #b0bec5;
 }
 
-.button-save {
-    -fx-background-color: #2e7d32;
+.check-custom:selected .mark {
+    -fx-background-color: white;
 }
 
-.button-save:hover {
-    -fx-background-color: #1b5e20;
+.check-custom:selected .box {
+    -fx-background-color: #3f51b5;
+    -fx-border-color: #3f51b5;
 }
 
-.button-build {
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-background-radius: 6;
-    -fx-cursor: hand;
-    -fx-font-size: 13px;
-    -fx-background-color: #e65100;
-}
+/* ---------- Botones ---------- */
 
-.button-build:hover {
-    -fx-background-color: #bf360c;
-}
-
-.button-modify {
-    -fx-background-color: #1565c0;
-}
-
-.button-modify:hover {
-    -fx-background-color: #0d47a1;
-}
-
+.button-save,
+.button-build,
+.button-modify,
+.button-clone,
 .button-delete {
-    -fx-background-color: #c62828;
-}
-
-.button-clone {
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-background-radius: 6;
-    -fx-cursor: hand;
     -fx-font-size: 13px;
-    -fx-background-color: #6a1b9a;
+    -fx-background-radius: 7;
+    -fx-cursor: hand;
+    -fx-padding: 8 16 8 16;
 }
 
-.button-clone:hover {
-    -fx-background-color: #4a148c;
-}
+.button-save          { -fx-background-color: #2e7d32; }
+.button-save:hover    { -fx-background-color: #1b5e20; }
 
-.button-delete:hover {
-    -fx-background-color: #8e0000;
-}
+.button-build         { -fx-background-color: #e65100; }
+.button-build:hover   { -fx-background-color: #bf360c; }
+
+.button-modify        { -fx-background-color: #1565c0; }
+.button-modify:hover  { -fx-background-color: #0d47a1; }
+
+.button-clone         { -fx-background-color: #6a1b9a; }
+.button-clone:hover   { -fx-background-color: #4a148c; }
+
+.button-delete        { -fx-background-color: #c62828; }
+.button-delete:hover  { -fx-background-color: #8e0000; }
+
+/* ---------- Tabla ---------- */
 
 .table-custom {
     -fx-background-color: white;
-    -fx-background-radius: 8;
-    -fx-border-color: #dfe3e8;
-    -fx-border-radius: 8;
+    -fx-background-radius: 9;
+    -fx-border-color: #e1e5ec;
+    -fx-border-radius: 9;
+    -fx-padding: 0;
 }
 
 .table-custom .column-header-background {
-    -fx-background-color: #eceff1;
-    -fx-background-radius: 8 8 0 0;
+    -fx-background-color: #f3f5f9;
+    -fx-background-radius: 9 9 0 0;
 }
 
-.table-custom .column-header-background .label {
-    -fx-text-fill: #263238;
+.table-custom .column-header,
+.table-custom .filler {
+    -fx-background-color: transparent;
+    -fx-size: 40px;
+    -fx-border-color: transparent #e1e5ec transparent transparent;
+}
+
+.table-custom .column-header .label {
+    -fx-text-fill: #1a237e;
     -fx-font-weight: bold;
+    -fx-font-size: 13px;
 }
 
-.card-panel {
+.table-custom .table-row-cell {
+    -fx-cell-size: 34px;
     -fx-background-color: white;
-    -fx-background-radius: 10;
-    -fx-border-color: #e0e3e8;
-    -fx-border-radius: 10;
+    -fx-border-color: transparent transparent #eef1f6 transparent;
+}
+
+.table-custom .table-row-cell:odd {
+    -fx-background-color: #fafbfd;
+}
+
+.table-custom .table-row-cell:hover {
+    -fx-background-color: #e8eaf6;
+}
+
+.table-custom .table-row-cell:selected {
+    -fx-background-color: #c5cae9;
+}
+
+.table-custom .table-row-cell:selected .text {
+    -fx-fill: #1a237e;
+}
+
+.table-custom .table-cell {
+    -fx-font-size: 13px;
+    -fx-text-fill: #37474f;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 12 0 12;
+}
+
+.table-placeholder {
+    -fx-font-size: 13px;
+    -fx-text-fill: #90a4ae;
+}
+
+/* ---------- Separador ---------- */
+
+.separator .line {
+    -fx-border-color: #eceff1;
+    -fx-border-width: 1 0 0 0;
+}
+
+/* ---------- Barras de desplazamiento ---------- */
+
+.scroll-bar:vertical .thumb,
+.scroll-bar:horizontal .thumb {
+    -fx-background-color: #c5cad6;
+    -fx-background-radius: 6;
+}
+
+.scroll-bar:vertical .thumb:hover,
+.scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: #9fa8c0;
+}
+
+.scroll-bar:vertical .track,
+.scroll-bar:horizontal .track {
+    -fx-background-color: transparent;
 }

@@ -12,10 +12,14 @@ public class App extends Application {
 
     private static Scene scene;
 
-    @Override
+      @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("droneVista"), 1000, 560);
+        scene = new Scene(loadFXML("droneVista"), 1280, 800);
         stage.setScene(scene);
+        stage.setTitle("Gestión de Drones - Proyecto 2 Software 2");
+        stage.setMinWidth(1100);
+        stage.setMinHeight(650);
+        stage.setMaximized(true);
         stage.show();
     }
 

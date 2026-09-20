@@ -1,0 +1,14 @@
+{
+  "id": 0,
+  "nombre": "Ataque",
+  "ubicacion": "Madrid",
+  "fecha": "10/12/23",
+  "drone": {
+    "capacidadTanque": 3.0,
+    "id": "102233",
+    "serial": "MAIN",
+    "modelo": "MOLS",
+    "fabricante": "MMOLE",
+    "peso": 14.0
+  }
+}
