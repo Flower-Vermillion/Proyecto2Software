@@ -1,0 +1,14 @@
+{
+  "id": 0,
+  "nombre": "Entrega",
+  "ubicacion": "Bogotá",
+  "fecha": "21/0972026",
+  "drone": {
+    "capacidadTanque": 40.0,
+    "id": "AGR-D4B03BAC",
+    "serial": "SER-AGR-580af452-d175-40e0-84ce-70fd0e8513a0",
+    "modelo": "AgroFly X1",
+    "fabricante": "AgroTech",
+    "peso": 12.5
+  }
+}

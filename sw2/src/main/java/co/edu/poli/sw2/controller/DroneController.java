@@ -3,10 +3,12 @@ package co.edu.poli.sw2.controller;
 import co.edu.poli.sw2.DAO.DroneDAO;
 import co.edu.poli.sw2.modelo.Agricultura;
 import co.edu.poli.sw2.modelo.Drone;
+import co.edu.poli.sw2.modelo.Mision;
 import co.edu.poli.sw2.modelo.Sensor;
 import co.edu.poli.sw2.modelo.Vigilancia;
 import co.edu.poli.sw2.servicios.BateriaAdicionalDecorator;
 import co.edu.poli.sw2.servicios.Builder;
+import co.edu.poli.sw2.servicios.ClienteAdapter;
 import co.edu.poli.sw2.servicios.ConcretePrototype;
 import co.edu.poli.sw2.servicios.ControlAutonomo;
 import co.edu.poli.sw2.servicios.ControlBasico;
@@ -14,6 +16,7 @@ import co.edu.poli.sw2.servicios.ControlDron;
 import co.edu.poli.sw2.servicios.DroneComponent;
 import co.edu.poli.sw2.servicios.DroneCreator;
 import co.edu.poli.sw2.servicios.DroneWrapper;
+import co.edu.poli.sw2.servicios.MisionAdapter;
 import co.edu.poli.sw2.servicios.SensorComposite;
 import co.edu.poli.sw2.servicios.SensorWrapper;
 import javafx.collections.FXCollections;
@@ -113,11 +116,48 @@ private CheckBox chkBateriaAdicional;
 @FXML
 private TextField txtDescripcionBateria;
 
+    // ========== CAMPOS PARA MISIÓN ==========
+    @FXML
+    private TextField txtMisionId;
+    
+    @FXML
+    private TextField txtMisionNombre;
+    
+    @FXML
+    private TextField txtMisionUbicacion;
+    
+    @FXML
+    private TextField txtMisionFecha;
+    
+    @FXML
+    private ComboBox<String> cbDroneParaMision;
+    
+    @FXML
+    private Button btnGuardarMision;
+    
+    @FXML
+    private Button btnGuardarMisionJSON;
+    
+    @FXML
+    private TableView<Mision> tblMisiones;
+    
+    @FXML
+    private TableColumn<Mision, Integer> colMisionId;
+    
+    @FXML
+    private TableColumn<Mision, String> colMisionNombre;
+    
+    @FXML
+    private TableColumn<Mision, String> colMisionUbicacion;
+    
+    @FXML
+    private TableColumn<Mision, String> colMisionFecha;
+
     // =========================
     // INICIALIZAR
     // =========================
 
-    @FXML
+        @FXML
     public void initialize() {
 
         droneDAO = new DroneDAO();
@@ -126,10 +166,9 @@ private TextField txtDescripcionBateria;
                 FXCollections.observableArrayList("Agricultura", "Vigilancia")
         );
 
-   
-cbTipoControl.setItems(
-        FXCollections.observableArrayList("Básico", "Autónomo")
-);
+        cbTipoControl.setItems(
+                FXCollections.observableArrayList("Básico", "Autónomo")
+        );
 
         configurarTabla();
 
@@ -164,7 +203,7 @@ cbTipoControl.setItems(
     // CARGAR DRONES
     // =========================
 
-    private void cargarDrones() {
+       private void cargarDrones() {
 
         try {
 
@@ -172,6 +211,15 @@ cbTipoControl.setItems(
                     FXCollections.observableArrayList(droneDAO.readall());
 
             tblDrones.setItems(lista);
+
+            // Refrescar tambien el ComboBox de Misión
+            cbDroneParaMision.setItems(
+                    FXCollections.observableArrayList(
+                            lista.stream()
+                                 .map(Drone::getId)
+                                 .toList()
+                    )
+            );
 
         } catch (Exception e) {
 
@@ -881,5 +929,69 @@ private void verDescripcionDecorator(ActionEvent event) {
         alerta.setHeaderText(null);
         alerta.setContentText(mensaje);
         alerta.showAndWait();
+    }
+
+        // =========================
+    // GUARDAR MISIÓN COMO JSON
+    // =========================
+
+    @FXML
+    private void guardarMisionComoJSON(ActionEvent event) {
+        
+        try {
+            // Validar campos de Misión
+            if (txtMisionNombre.getText().trim().isEmpty()
+                    || txtMisionUbicacion.getText().trim().isEmpty()
+                    || txtMisionFecha.getText().trim().isEmpty()
+                    || cbDroneParaMision.getValue() == null) {
+                
+                mostrarError(
+                        "Datos incompletos",
+                        "Debe completar todos los campos de la Misión."
+                );
+                return;
+            }
+            
+            // Crear instancia de Misión
+            Mision mision = new Mision();
+            mision.setNombre(txtMisionNombre.getText().trim());
+            mision.setUbicacion(txtMisionUbicacion.getText().trim());
+            mision.setFecha(txtMisionFecha.getText().trim());
+            
+            // Buscar el drone seleccionado
+            String droneSeleccionado = cbDroneParaMision.getValue();
+            for (Drone drone : tblDrones.getItems()) {
+                if (drone.getId().equals(droneSeleccionado)) {
+                    mision.setDrone(drone);
+                    break;
+                }
+            }
+            
+            // Usar el Adapter para convertir a JSON y guardar
+            ClienteAdapter adapter = new MisionAdapter();
+            String resultado = adapter.convertir(mision);
+            
+            mostrarInformacion("Éxito", resultado);
+            
+            limpiarCamposMision();
+            
+        } catch (Exception e) {
+            mostrarError(
+                    "Error",
+                    "No se pudo guardar la Misión como JSON.\n\n" + e.getMessage()
+            );
+        }
+    }
+    
+    // =========================
+    // LIMPIAR CAMPOS DE MISIÓN
+    // =========================
+    
+    private void limpiarCamposMision() {
+        txtMisionId.clear();
+        txtMisionNombre.clear();
+        txtMisionUbicacion.clear();
+        txtMisionFecha.clear();
+        cbDroneParaMision.setValue(null);
     }
 }
