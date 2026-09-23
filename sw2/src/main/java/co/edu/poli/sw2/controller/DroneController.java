@@ -16,7 +16,9 @@ import co.edu.poli.sw2.servicios.ControlDron;
 import co.edu.poli.sw2.servicios.DroneComponent;
 import co.edu.poli.sw2.servicios.DroneCreator;
 import co.edu.poli.sw2.servicios.DroneWrapper;
+import co.edu.poli.sw2.servicios.InterfazProxy;
 import co.edu.poli.sw2.servicios.MisionAdapter;
+import co.edu.poli.sw2.servicios.Proxy;
 import co.edu.poli.sw2.servicios.SensorComposite;
 import co.edu.poli.sw2.servicios.SensorWrapper;
 import javafx.collections.FXCollections;
@@ -27,9 +29,12 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
@@ -38,6 +43,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import java.util.Optional;
 
 /**
  * NOTA: este controller ahora maneja tanto Agricultura como Vigilancia
@@ -103,7 +109,15 @@ public class DroneController {
     @FXML
     private CheckBox chkDeteccionTermica;
 
+    // Acceso directo al CRUD de Drone para crear/leer/actualizar.
+    // NOTA: InterfazProxy ahora solo declara eliminar(...) (ver
+    // patrón Proxy simplificado); por eso estas tres operaciones
+    // vuelven a usar DroneDAO directamente.
     private DroneDAO droneDAO;
+
+    // Punto único de acceso a la eliminación de Drone (patrón Proxy):
+    // exige contraseña antes de delegar en el RealSubject.
+    private InterfazProxy proxy;
 
     // Nuevo: selector de tipo de control (patrón Bridge)
 @FXML
@@ -161,6 +175,7 @@ private TextField txtDescripcionBateria;
     public void initialize() {
 
         droneDAO = new DroneDAO();
+        proxy = new Proxy();
 
         cbTipo.setItems(
                 FXCollections.observableArrayList("Agricultura", "Vigilancia")
@@ -342,9 +357,16 @@ private TextField txtDescripcionBateria;
     }
 
     // =========================
-    // ELIMINAR
+    // ELIMINAR (patrón Proxy)
     // =========================
 
+    /**
+     * Antes de eliminar, pide la contraseña mediante {@link
+     * #solicitarContrasena()} y se la pasa al {@link Proxy}. El Proxy
+     * es quien decide si la contraseña es correcta: si no lo es,
+     * lanza una {@link SecurityException} y la eliminación jamás
+     * llega al RealSubject ({@link co.edu.poli.sw2.servicios.ServicioProxy}).
+     */
     @FXML
     private void eliminarDrone(ActionEvent event) {
 
@@ -359,14 +381,28 @@ private TextField txtDescripcionBateria;
                 return;
             }
 
+            Optional<String> contrasena = solicitarContrasena();
+
+            if (contrasena.isEmpty()) {
+                // El usuario canceló el diálogo: no se intenta eliminar.
+                return;
+            }
+
             String id = txtId.getText().trim();
 
-            droneDAO.delete(id);
+            proxy.eliminar(id, contrasena.get());
 
             mostrarInformacion("Éxito", "El drone se eliminó correctamente.");
 
             limpiarCampos();
             cargarDrones();
+
+        } catch (SecurityException e) {
+
+            mostrarError(
+                    "Acceso denegado",
+                    e.getMessage()
+            );
 
         } catch (Exception e) {
 
@@ -375,6 +411,34 @@ private TextField txtDescripcionBateria;
                     "No se pudo eliminar el drone.\n\n" + e.getMessage()
             );
         }
+    }
+
+    /**
+     * Construye un diálogo simple con un {@link PasswordField} y
+     * devuelve la contraseña ingresada (vacío si el usuario cancela).
+     * Es el único punto de la UI donde se pide contraseña, ya que es
+     * la única operación protegida por el Proxy.
+     */
+    private Optional<String> solicitarContrasena() {
+
+        Dialog<String> dialogo = new Dialog<>();
+        dialogo.setTitle("Confirmar eliminación");
+        dialogo.setHeaderText("Ingrese la contraseña para eliminar el drone.");
+
+        PasswordField campoContrasena = new PasswordField();
+        campoContrasena.setPromptText("Contraseña");
+
+        VBox contenedor = new VBox(10, campoContrasena);
+        contenedor.setPadding(new Insets(10));
+        dialogo.getDialogPane().setContent(contenedor);
+
+        dialogo.getDialogPane().getButtonTypes().addAll(
+                ButtonType.OK, ButtonType.CANCEL);
+
+        dialogo.setResultConverter(boton ->
+                boton == ButtonType.OK ? campoContrasena.getText() : null);
+
+        return dialogo.showAndWait();
     }
     
     // =========================
@@ -775,10 +839,6 @@ private void verDescripcionDecorator(ActionEvent event) {
             sensorTemperatura.agregar(new Sensor(contadorId++, "Sensor Infrarrojo", "N/A"));
             sensorTemperatura.agregar(new Sensor(contadorId++, "RTD", "N/A"));
 
-            SensorComposite sensorCamara = new SensorComposite("Sensor Cámara");
-            sensorCamara.agregar(new Sensor(contadorId++, "Sensor CMOS", "N/A"));
-            sensorCamara.agregar(new Sensor(contadorId++, "Sensor CCD", "N/A"));
-
             SensorComposite sensorDigital = new SensorComposite("Sensor Digital");
             sensorDigital.agregar(new Sensor(contadorId++, "SPI", "N/A"));
             sensorDigital.agregar(new Sensor(contadorId++, "UART", "N/A"));
@@ -787,12 +847,15 @@ private void verDescripcionDecorator(ActionEvent event) {
             sensorSonido.agregar(new Sensor(contadorId++, "Sensor Analógico", "N/A"));
             sensorSonido.agregar(sensorDigital); // Composite dentro de Composite
 
-            SensorWrapper sensorInteligente = new SensorWrapper(
-                    new Sensor(contadorId++, "Sensor Inteligente", "N/A")
-            );
+            SensorComposite sensorInteligente = new SensorComposite( "Sensor Inteligente");
+            
+                    sensorInteligente.agregar(new Sensor(contadorId++, "Sensor Camara", "N/A"));
+                    sensorInteligente.agregar(new Sensor(contadorId++, "Sensor CMOS", "N/A"));
+                    sensorInteligente.agregar(new Sensor(contadorId++, "Sensor CCD", "N/A"));
+            
+            
 
             sensorGeneral.agregar(sensorTemperatura);
-            sensorGeneral.agregar(sensorCamara);
             sensorGeneral.agregar(sensorSonido);
             sensorGeneral.agregar(sensorInteligente);
 
