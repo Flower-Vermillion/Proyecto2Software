@@ -33,12 +33,26 @@ public class ControlDron {
         /**
          * Ejecuta el mecanismo de control concreto y devuelve una
          * descripción legible de lo que hace ese modo de control.
+         *
+         * @return la descripción del modo de control ejecutado
          */
         String ejecutarControl();
     }
 
+    /**
+     * Implementor concreto (ControlBasico o ControlAutonomo) al que
+     * esta Abstraction delega la ejecución real del control.
+     */
     protected final DroneControlImplementor implementor;
 
+    /**
+     * Crea el control, inyectando el Implementor concreto a usar.
+     *
+     * @param implementor el implementor (ControlBasico o
+     *                     ControlAutonomo) que ejecutará el control;
+     *                     no puede ser nulo
+     * @throws IllegalArgumentException si {@code implementor} es nulo
+     */
     public ControlDron(DroneControlImplementor implementor) {
         if (implementor == null) {
             throw new IllegalArgumentException("El implementor de control no puede ser nulo");
@@ -51,6 +65,12 @@ public class ControlDron {
      * que se le muestra al usuario (identificación del drone + lo que
      * hace el modo de control seleccionado). No persiste nada en base
      * de datos: es una demostración funcional en memoria.
+     *
+     * @param drone el drone sobre el que se aplica el control; no
+     *              puede ser nulo
+     * @return el mensaje combinando la identificación del drone y la
+     *         descripción del modo de control ejecutado
+     * @throws IllegalArgumentException si {@code drone} es nulo
      */
     public String activar(Drone drone) {
 

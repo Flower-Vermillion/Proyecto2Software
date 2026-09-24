@@ -7,6 +7,15 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Adaptee (patrón Adapter).
+ *
+ * Servicio genérico que solo sabe guardar un texto en formato JSON a
+ * un archivo, sin conocer nada sobre {@link co.edu.poli.sw2.modelo.Mision}
+ * ni sobre ningún otro modelo del dominio. Es {@link MisionAdapter}
+ * quien lo adapta para que el cliente pueda trabajar en términos de
+ * {@link ClienteAdapter#convertir(co.edu.poli.sw2.modelo.Mision)}.
+ */
 public class ServicioJson {
 
     /**

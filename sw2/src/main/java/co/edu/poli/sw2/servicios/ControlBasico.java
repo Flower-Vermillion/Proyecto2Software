@@ -8,6 +8,11 @@ package co.edu.poli.sw2.servicios;
  */
 public class ControlBasico implements ControlDron.DroneControlImplementor {
 
+    /**
+     * Describe el funcionamiento del control básico.
+     *
+     * @return la descripción del modo de control básico
+     */
     @Override
     public String ejecutarControl() {
         return "Control BÁSICO activado: manejo manual mediante mando/radiocontrol, "

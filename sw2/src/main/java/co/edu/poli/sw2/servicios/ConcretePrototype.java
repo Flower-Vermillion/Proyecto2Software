@@ -27,6 +27,12 @@ public class ConcretePrototype {
 
     private final Drone original;
 
+    /**
+     * Crea el prototipo a partir del drone original a clonar.
+     *
+     * @param original el drone que se va a clonar; no puede ser nulo
+     * @throws IllegalArgumentException si {@code original} es nulo
+     */
     public ConcretePrototype(Drone original) {
         if (original == null) {
             throw new IllegalArgumentException("El drone original no puede ser nulo");
@@ -34,6 +40,11 @@ public class ConcretePrototype {
         this.original = original;
     }
 
+    /**
+     * Devuelve el drone original que este prototipo envuelve.
+     *
+     * @return el {@link Drone} original
+     */
     public Drone getOriginal() {
         return original;
     }
@@ -41,6 +52,12 @@ public class ConcretePrototype {
     /**
      * Produce el clon del drone original. No modifica ni guarda nada
      * en base de datos: solo crea la copia en memoria.
+     *
+     * @return una nueva instancia (Agricultura o Vigilancia) con los
+     *         mismos valores que el original
+     * @throws IllegalArgumentException si el tipo concreto del drone
+     *                                  original no está soportado
+     *                                  para clonar
      */
     public Drone clonar() {
 
@@ -68,6 +85,10 @@ public class ConcretePrototype {
      * Arma el mensaje que se le muestra al usuario tras clonar:
      * el id del drone copiado junto con la dirección de memoria del
      * original y la del clon recién creado.
+     *
+     * @param clon el drone clonado, obtenido de {@link #clonar()}
+     * @return el mensaje de confirmación, listo para mostrarse en la
+     *         interfaz
      */
     public String mensajeClonado(Drone clon) {
 
@@ -78,6 +99,16 @@ public class ConcretePrototype {
                 + "  Dirección de memoria: " + direccionMemoria(clon);
     }
 
+    /**
+     * Calcula un identificador de instancia legible para el objeto
+     * dado, a partir de {@link System#identityHashCode(Object)}
+     * (sustituto estándar de la dirección de memoria real, ya que
+     * Java no la expone directamente).
+     *
+     * @param obj el objeto del que se quiere el identificador
+     * @return el identificador de instancia en formato hexadecimal
+     *         (por ejemplo "0x1a2b3c")
+     */
     private String direccionMemoria(Object obj) {
         return "0x" + Integer.toHexString(System.identityHashCode(obj));
     }

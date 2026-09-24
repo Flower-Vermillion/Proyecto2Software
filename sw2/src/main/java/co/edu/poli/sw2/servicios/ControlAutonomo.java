@@ -8,6 +8,11 @@ package co.edu.poli.sw2.servicios;
  */
 public class ControlAutonomo implements ControlDron.DroneControlImplementor {
 
+    /**
+     * Describe el funcionamiento del control autónomo.
+     *
+     * @return la descripción del modo de control autónomo
+     */
     @Override
     public String ejecutarControl() {
         return "Control AUTÓNOMO activado: navegación por GPS con ruta "
