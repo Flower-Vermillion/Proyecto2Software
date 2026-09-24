@@ -1,5 +1,11 @@
+/**
+ * Modulo principal de la aplicacion de gestion de drones.
+ *
+ * Declara las dependencias externas (JavaFX, JDBC, dotenv-java, Gson)
+ * y expone los paquetes necesarios para el runtime de JavaFX y para
+ * su consumo desde otros modulos.
+ */
 module sw2.co.edu.poli.sw2 {
-    
     requires javafx.controls;
     requires javafx.fxml;
     requires java.sql;
